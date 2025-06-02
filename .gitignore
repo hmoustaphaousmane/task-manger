@@ -1,0 +1,10 @@
+dist
+build/
+node_modules/
+.vscode/
+.npm
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
