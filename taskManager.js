@@ -4,8 +4,26 @@ const filePath = path.join(__dirname, 'tasks.json')
 
 let tasks = []
 
+// Function that loads tasks from tasks.json
+const loadTasksFromFile = () => {
+    tasks = fs.readFileSync(filePath, 'utf-8')
+    console.log(tasks)
+}
+
+// Function that saves tasks to tasks.json
+const saveTasksToFile = () => {
+    fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2), 'utf-8', (err) => {
+        if (err) throw err
+        console.log(`Tasks successfully saved into ${filePath}.`)
+    })
+}
+
 // Function that adds a new task
 const addTask = (title, description) => {
+    if (!title || !description) {
+        throw new Error('Title and description are required.')
+    }
+
     const task = {
         id: tasks.length + 1,
         title: title,
@@ -17,11 +35,13 @@ const addTask = (title, description) => {
     tasks.push(task)
     // console.log(`Task added: ${JSON.stringify(task)}`);
     // console.log(`Tasks: ${JSON.stringify(tasks)}`);
+    saveTasksToFile()
+    return task
 }
 
 // Function that returns all tasks
 const getAllTasks = () => {
-    return tasks
+    return [...tasks] // Return a copy to avoid external modification
 }
 
 // Function that arks a task as completed
@@ -29,6 +49,9 @@ const markTaskComplete = (taskId) => {
     const task = tasks.find(t => t.id === taskId)
     if (task) task.completed = true
     else console.log(`There is no task with the id ${taskId}.`)
+
+    saveTasksToFile()
+    return task
 }
 
 // Function that removes a task
@@ -37,21 +60,10 @@ const deleteTask = (taskId) => {
     if (index !== -1 ) {
         const deletedTask = tasks.splice(index, 1)[0]
         console.log(`Deleted task ${deletedTask.id} with title "${deletedTask.title}"`)
+
+        saveTasksToFile()
+        return deleteTask
     }
-}
-
-// Function that saves tasks to tasks.json
-const saveTasksToFile = () => {
-    fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2), 'utf-8', (err) => {
-        if (err) throw err
-        console.log(`Tasks successfully saved into ${filePath}.`)
-    })
-}
-
-// Function that loads tasks from tasks.json
-const loadTasksFromFile = () => {
-    tasks = fs.readFileSync(filePath, 'utf-8')
-    console.log(tasks)
 }
 
 // addTask('Sample Task 1', 'This is a sample task 1 description.');
@@ -62,6 +74,8 @@ const loadTasksFromFile = () => {
 // deleteTask(2)
 // saveTasksToFile()
 // loadTasksFromFile()
+
+loadTasksFromFile()
 
 module.exports = {
     addTask,
